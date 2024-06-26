@@ -896,6 +896,8 @@ ifdef CONFIG_CC_IS_CLANG
 KBUILD_CPPFLAGS += -Qunused-arguments
 # The kernel builds with '-std=gnu11' so use of GNU extensions is acceptable.
 KBUILD_CFLAGS += -Wno-gnu
+# Disable -Wformat warning
+KBUILD_CFLAGS += -Wno-format
 else
 
 # gcc inanely warns about local variables called 'main'
