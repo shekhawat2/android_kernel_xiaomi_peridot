@@ -31,3 +31,6 @@ obj-y		+= chips/ lpddr/ maps/ devices/ nand/ tests/
 obj-$(CONFIG_MTD_SPI_NOR)	+= spi-nor/
 obj-$(CONFIG_MTD_UBI)		+= ubi/
 obj-$(CONFIG_MTD_HYPERBUS)	+= hyperbus/
+
+# Disable -Wenum-compare warnings/errors
+KBUILD_CFLAGS += -Wno-enum-compare
