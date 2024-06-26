@@ -13,7 +13,6 @@
 #include <linux/regulator/consumer.h>
 #include <linux/usb/dwc3-msm.h>
 #include <linux/usb/repeater.h>
-#include "../../misc/hwid/hwid.h"
 
 #define EUSB2_3P0_VOL_MIN			3075000 /* uV */
 #define EUSB2_3P0_VOL_MAX			3300000 /* uV */

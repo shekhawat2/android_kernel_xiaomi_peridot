@@ -49,7 +49,6 @@
 #include <linux/usb/composite.h>
 #include <linux/soc/qcom/wcd939x-i2c.h>
 #include <linux/usb/repeater.h>
-#include "../../misc/hwid/hwid.h"
 
 #include "core.h"
 #include "gadget.h"
@@ -1104,14 +1103,8 @@ static inline bool dwc3_msm_is_dev_superspeed(struct dwc3_msm *mdwc)
 
 	speed = dwc3_msm_read_reg(mdwc->base, DWC3_DSTS) & DWC3_DSTS_CONNECTSPD;
 	if ((speed == DWC3_DSTS_SUPERSPEED) ||
-			(speed == DWC3_DSTS_SUPERSPEED_PLUS)) {
-		if (speed == DWC3_DSTS_SUPERSPEED) {
-			dev_info(mdwc->dev, "%s: DWC3_DSTS_SUPERSPEED\n", __func__);
-		} else {
-			dev_info(mdwc->dev, "%s: DWC3_DSTS_SUPERSPEED_PLUS\n", __func__);
-		}
+			(speed == DWC3_DSTS_SUPERSPEED_PLUS))
 		return true;
-	}
 
 	return false;
 }
@@ -6689,9 +6682,6 @@ static int dwc3_msm_host_notifier(struct notifier_block *nb,
 	struct dwc3_msm *mdwc = container_of(nb, struct dwc3_msm, host_nb);
 	struct dwc3 *dwc = platform_get_drvdata(mdwc->dwc3);
 	struct usb_device *udev = ptr;
-	uint32_t platform_id;
-
-	platform_id = get_hw_version_platform();
 
 	if (event != USB_DEVICE_ADD && event != USB_DEVICE_REMOVE)
 		return NOTIFY_DONE;
@@ -6728,11 +6718,8 @@ static int dwc3_msm_host_notifier(struct notifier_block *nb,
 				dwc3_msm_host_ss_powerdown(mdwc);
 
 				if (mdwc->wcd_usbss) {
-					if (platform_id == HARDWARE_PROJECT_N11U) {
-						wcd_usbss_dpdm_switch_update(true,false);
-					} else {
-						wcd_usbss_dpdm_switch_update(true, udev->speed == USB_SPEED_HIGH);
-					}
+					wcd_usbss_dpdm_switch_update(true,
+							udev->speed == USB_SPEED_HIGH);
 				}
 				dwc3_msm_update_interfaces(udev);
 			} else {
@@ -6864,7 +6851,6 @@ static int dwc3_otg_start_host(struct dwc3_msm *mdwc, int on)
 {
 	int ret = 0;
 	struct dwc3 *dwc = platform_get_drvdata(mdwc->dwc3);
-	uint32_t platform_id;
 	u32 reg;
 
 	if (on) {
@@ -6949,12 +6935,6 @@ static int dwc3_otg_start_host(struct dwc3_msm *mdwc, int on)
 		dwc3_msm_write_reg_field(mdwc->base, DWC3_GUSB3PIPECTL(0),
 				DWC3_GUSB3PIPECTL_SUSPHY, 1);
 
-		 /* disable host gen2 */
-		platform_id = get_hw_version_platform();
-		if (platform_id == HARDWARE_PROJECT_N3) {
-			dwc3_msm_write_reg_field(mdwc->base, USB3_PRI_LINK_REGS_LLUCTL(0), FORCE_GEN1_MASK, 1);
-			dev_info(mdwc->dev, "Turn on host: Force gen1");
-		}
 		/* Reduce the U3 exit handshake timer from 8us to approximately
 		 * 300ns to avoid lfps handshake interoperability issues
 		 */
